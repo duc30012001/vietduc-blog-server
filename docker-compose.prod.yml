@@ -1,0 +1,20 @@
+services:
+    app:
+        image: duck-blog-server/prod:${TAG:-latest}
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: duck-blog-server-prod
+        ports:
+            - "${PORT:-8080}:${PORT:-8080}"
+        environment:
+            - PORT=${PORT:-8080}
+            - NODE_ENV=${NODE_ENV:-development}
+            - DATABASE_URL=${DATABASE_URL}
+            - SWAGGER_USER=${SWAGGER_USER:-user}
+            - SWAGGER_PASSWORD=${SWAGGER_PASSWORD:-password}
+            - CORS_ORIGINS=${CORS_ORIGINS:-localhost,http://localhost:5173}
+            - TZ=${TZ:-Asia/Ho_Chi_Minh}
+        restart: unless-stopped
+        mem_limit: 4g # Set max memory to 4 GB
+        cpus: 4 # Set max CPU to 4 CPU core
