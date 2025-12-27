@@ -18,3 +18,5 @@ services:
         restart: unless-stopped
         mem_limit: 4g # Set max memory to 4 GB
         cpus: 4 # Set max CPU to 4 CPU core
+        volumes:
+            - ./firebase-adminsdk.json:/app/firebase-adminsdk.json:ro
