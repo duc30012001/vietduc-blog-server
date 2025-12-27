@@ -7,6 +7,7 @@ import { FirebaseModule } from "./common/firebase";
 import { AdminGuard, FirebaseAuthGuard } from "./common/guards";
 import { validationSchema } from "./config";
 import configuration from "./config/configuration";
+import { CategoriesModule } from "./modules/categories/categories.module";
 import { UsersModule } from "./modules/users/users.module";
 import { PrismaModule } from "./prisma/prisma.module";
 
@@ -22,6 +23,7 @@ import { PrismaModule } from "./prisma/prisma.module";
         FirebaseModule,
         PrismaModule,
         UsersModule,
+        CategoriesModule,
     ],
     controllers: [AppController],
     providers: [

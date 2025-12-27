@@ -10,6 +10,10 @@ export interface FirebaseUser {
     emailVerified?: boolean;
     displayName?: string;
     photoURL?: string;
+    dbUser?: {
+        id: string;
+        role: string;
+    };
 }
 
 declare module "express" {

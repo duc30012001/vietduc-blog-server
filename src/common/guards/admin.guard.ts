@@ -47,6 +47,12 @@ export class AdminGuard implements CanActivate {
             throw new ForbiddenException("Admin access required");
         }
 
+        // Attach dbUser to request for use in controllers
+        firebaseUser.dbUser = {
+            id: userAccount.user.id,
+            role: userAccount.user.role,
+        };
+
         return true;
     }
 }
