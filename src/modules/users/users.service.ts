@@ -146,6 +146,30 @@ export class UsersService {
         return new UserResponseDto(user);
     }
 
+    async update(
+        id: string,
+        data: { name?: string; avatar?: string; role?: string }
+    ): Promise<UserResponseDto> {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+        });
+
+        if (!user) {
+            throw new NotFoundException("User not found");
+        }
+
+        const updatedUser = await this.prisma.user.update({
+            where: { id },
+            data: {
+                ...(data.name && { name: data.name }),
+                ...(data.avatar && { avatar: data.avatar }),
+                ...(data.role && { role: data.role as "ADMIN" | "USER" }),
+            },
+        });
+
+        return new UserResponseDto(updatedUser);
+    }
+
     async findByFirebaseUid(uid: string): Promise<UserResponseDto | null> {
         const account = await this.prisma.userAccount.findFirst({
             where: { provider_id: uid },

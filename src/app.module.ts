@@ -4,7 +4,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { FirebaseModule } from "./common/firebase";
-import { FirebaseAuthGuard } from "./common/guards";
+import { AdminGuard, FirebaseAuthGuard } from "./common/guards";
 import { validationSchema } from "./config";
 import configuration from "./config/configuration";
 import { UsersModule } from "./modules/users/users.module";
@@ -26,10 +26,15 @@ import { PrismaModule } from "./prisma/prisma.module";
     controllers: [AppController],
     providers: [
         AppService,
-        // Register FirebaseAuthGuard globally
+        // Register FirebaseAuthGuard globally (checks Firebase token)
         {
             provide: APP_GUARD,
             useClass: FirebaseAuthGuard,
+        },
+        // Register AdminGuard globally (checks admin role)
+        {
+            provide: APP_GUARD,
+            useClass: AdminGuard,
         },
     ],
 })

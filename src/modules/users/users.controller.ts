@@ -1,9 +1,9 @@
-import { Controller, Get, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../../common/decorators";
 import { PaginatedResponseDto } from "../../common/dto";
 import { FirebaseUser } from "../../common/guards/firebase-auth.guard";
-import { UserQueryDto, UserResponseDto } from "./dto";
+import { UpdateUserDto, UserQueryDto, UserResponseDto } from "./dto";
 import { UsersService } from "./users.service";
 
 @ApiTags("Users")
@@ -38,5 +38,13 @@ export class UsersController {
     @ApiResponse({ status: 404, description: "User not found" })
     async findById(@Param("id") id: string): Promise<UserResponseDto> {
         return this.usersService.findById(id);
+    }
+
+    @Patch(":id")
+    @ApiOperation({ summary: "Update user" })
+    @ApiResponse({ status: 200, type: UserResponseDto })
+    @ApiResponse({ status: 404, description: "User not found" })
+    async update(@Param("id") id: string, @Body() dto: UpdateUserDto): Promise<UserResponseDto> {
+        return this.usersService.update(id, dto);
     }
 }
