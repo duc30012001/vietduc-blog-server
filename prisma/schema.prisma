@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============ ENUMS ============
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ============ MODELS ============
+
+model User {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email       String   @unique @db.VarChar(255)
+  name        String   @db.VarChar(100)
+  avatar      String?  @db.VarChar(500)
+  role        UserRole @default(USER)
+  is_verified Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  // Auth providers (one user can have multiple: email + google + facebook)
+  accounts UserAccount[]
+
+  // Relations - as creator/modifier
+  created_tags        Tag[]      @relation("TagCreator")
+  modified_tags       Tag[]      @relation("TagModifier")
+  created_categories  Category[] @relation("CategoryCreator")
+  modified_categories Category[] @relation("CategoryModifier")
+  created_posts       Post[]     @relation("PostCreator")
+  modified_posts      Post[]     @relation("PostModifier")
+  comments            Comment[]
+
+  @@map("users")
+}
+
+model UserAccount {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider    AuthProvider
+  provider_id String       @db.VarChar(255) // OAuth provider user ID or email for EMAIL provider
+  password    String?      @db.VarChar(255) // Only for EMAIL provider (hashed)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now()) @updatedAt
+
+  user_id String @db.Uuid
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([provider, provider_id])
+  @@index([user_id])
+  @@map("user_accounts")
+}
+
+model Tag {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug       String   @unique @db.VarChar(100)
+  name_vi    String   @db.VarChar(100)
+  name_en    String   @db.VarChar(100)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  // Audit fields
+  creator_id  String @db.Uuid
+  creator     User   @relation("TagCreator", fields: [creator_id], references: [id])
+  modifier_id String? @db.Uuid
+  modifier    User?  @relation("TagModifier", fields: [modifier_id], references: [id])
+
+  // Relations
+  posts PostTag[]
+
+  @@index([creator_id])
+  @@index([modifier_id])
+  @@map("tags")
+}
+
+model Category {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String   @unique @db.VarChar(100)
+  name_vi     String   @db.VarChar(100)
+  name_en     String   @db.VarChar(100)
+  description String?  @db.VarChar(500)
+  order       Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  // Audit fields
+  creator_id  String @db.Uuid
+  creator     User   @relation("CategoryCreator", fields: [creator_id], references: [id])
+  modifier_id String? @db.Uuid
+  modifier    User?  @relation("CategoryModifier", fields: [modifier_id], references: [id])
+
+  // Self-referencing for tree structure
+  parent_id String?    @db.Uuid
+  parent    Category?  @relation("CategoryTree", fields: [parent_id], references: [id], onDelete: SetNull)
+  children  Category[] @relation("CategoryTree")
+
+  // Relations
+  posts Post[]
+
+  @@index([parent_id])
+  @@index([creator_id])
+  @@index([modifier_id])
+  @@map("categories")
+}
+
+model Post {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug         String     @unique @db.VarChar(255)
+  title_vi     String     @db.VarChar(255)
+  title_en     String     @db.VarChar(255)
+  excerpt_vi   String?    @db.VarChar(500)
+  excerpt_en   String?    @db.VarChar(500)
+  content_vi   String     @db.Text
+  content_en   String     @db.Text
+  thumbnail    String?    @db.VarChar(500)
+  status       PostStatus @default(DRAFT)
+  view_count   Int        @default(0)
+  published_at DateTime?
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @default(now()) @updatedAt
+
+  // Audit fields
+  creator_id  String @db.Uuid
+  creator     User   @relation("PostCreator", fields: [creator_id], references: [id])
+  modifier_id String? @db.Uuid
+  modifier    User?  @relation("PostModifier", fields: [modifier_id], references: [id])
+
+  // Relations
+  category_id String?   @db.Uuid
+  category    Category? @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  tags        PostTag[]
+  comments    Comment[]
+
+  @@index([status, published_at])
+  @@index([creator_id])
+  @@index([modifier_id])
+  @@index([category_id])
+  @@map("posts")
+}
+
+model PostTag {
+  post_id String @db.Uuid
+  tag_id  String @db.Uuid
+  post    Post   @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@id([post_id, tag_id])
+  @@map("post_tags")
+}
+
+model Comment {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content    String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  // Relations
+  author_id String @db.Uuid
+  author    User   @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  post_id   String @db.Uuid
+  post      Post   @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  // Tree structure (2 levels only: comment -> reply)
+  parent_id String?   @db.Uuid
+  parent    Comment?  @relation("CommentReplies", fields: [parent_id], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([post_id])
+  @@index([author_id])
+  @@index([parent_id])
+  @@map("comments")
+}
