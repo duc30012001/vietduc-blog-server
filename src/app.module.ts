@@ -8,6 +8,8 @@ import { AdminGuard, FirebaseAuthGuard } from "./common/guards";
 import { validationSchema } from "./config";
 import configuration from "./config/configuration";
 import { CategoriesModule } from "./modules/categories/categories.module";
+import { PostsModule } from "./modules/posts/posts.module";
+import { TagsModule } from "./modules/tags/tags.module";
 import { UsersModule } from "./modules/users/users.module";
 import { PrismaModule } from "./prisma/prisma.module";
 
@@ -24,6 +26,8 @@ import { PrismaModule } from "./prisma/prisma.module";
         PrismaModule,
         UsersModule,
         CategoriesModule,
+        PostsModule,
+        TagsModule,
     ],
     controllers: [AppController],
     providers: [
