@@ -75,6 +75,7 @@ export class PostsService {
                 content_en: dto.content_en,
                 thumbnail: dto.thumbnail,
                 status: dto.status || PostStatus.DRAFT,
+                published_at: dto.status === PostStatus.PUBLISHED ? new Date() : undefined,
                 category_id: dto.category_id,
                 creator_id: userId,
                 tags:

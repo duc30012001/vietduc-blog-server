@@ -9,6 +9,7 @@ import { validationSchema } from "./config";
 import configuration from "./config/configuration";
 import { CategoriesModule } from "./modules/categories/categories.module";
 import { PostsModule } from "./modules/posts/posts.module";
+import { PublicModule } from "./modules/public/public.module";
 import { TagsModule } from "./modules/tags/tags.module";
 import { UsersModule } from "./modules/users/users.module";
 import { PrismaModule } from "./prisma/prisma.module";
@@ -28,6 +29,7 @@ import { PrismaModule } from "./prisma/prisma.module";
         CategoriesModule,
         PostsModule,
         TagsModule,
+        PublicModule,
     ],
     controllers: [AppController],
     providers: [
