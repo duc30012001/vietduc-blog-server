@@ -107,7 +107,7 @@ export class PublicService {
             status: PostStatus.PUBLISHED,
         };
 
-        // Keyword search
+        // Keyword search (includes post fields, category name, and tag name)
         if (keyword) {
             where.OR = [
                 { title_vi: { contains: keyword, mode: "insensitive" } },
@@ -115,6 +115,20 @@ export class PublicService {
                 { excerpt_vi: { contains: keyword, mode: "insensitive" } },
                 { excerpt_en: { contains: keyword, mode: "insensitive" } },
                 { slug: { contains: keyword, mode: "insensitive" } },
+                // Search by category name
+                { category: { name_vi: { contains: keyword, mode: "insensitive" } } },
+                { category: { name_en: { contains: keyword, mode: "insensitive" } } },
+                // Search by tag name
+                {
+                    tags: {
+                        some: { tag: { name_vi: { contains: keyword, mode: "insensitive" } } },
+                    },
+                },
+                {
+                    tags: {
+                        some: { tag: { name_en: { contains: keyword, mode: "insensitive" } } },
+                    },
+                },
             ];
         }
 
