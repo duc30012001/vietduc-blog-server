@@ -47,13 +47,7 @@ export class SiteSettingResponseDto {
     updated_at: Date;
 }
 
-export class FooterSettingsResponseDto {
-    @ApiProperty({ type: [SocialLinkDto] })
-    socialLinks: SocialLinkDto[];
-
-    @ApiProperty({ example: "contact@example.com" })
-    contactEmail: string;
-}
+// Redundant FooterSettingsResponseDto removed.
 
 // ==================== Brand Settings ====================
 
@@ -107,4 +101,12 @@ export class BrandSettingsResponseDto {
 
     @ApiProperty({ example: "contact@example.com" })
     contactEmail: string;
+}
+
+export class PublicSettingsResponseDto {
+    @ApiProperty({ type: BrandSettingsResponseDto })
+    brand: BrandSettingsResponseDto;
+
+    @ApiProperty({ type: [SocialLinkDto] })
+    socials: SocialLinkDto[];
 }

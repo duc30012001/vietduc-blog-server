@@ -4,11 +4,11 @@ import { Public } from "../../common/decorators";
 import { PaginatedResponseDto } from "../../common/dto";
 import { SiteSettingsService } from "../site-settings/site-settings.service";
 import {
-    FooterSettingsResponseDto,
     PublicCategoryResponseDto,
     PublicPaginationQueryDto,
     PublicPostQueryDto,
     PublicPostResponseDto,
+    PublicSettingsResponseDto,
     PublicTagResponseDto,
 } from "./dto";
 import { PublicService } from "./public.service";
@@ -112,10 +112,10 @@ export class PublicController {
 
     // ==================== SITE SETTINGS ====================
 
-    @Get("site-settings/footer")
-    @ApiOperation({ summary: "Get footer configuration (social links, contact email)" })
-    @ApiResponse({ status: 200, type: FooterSettingsResponseDto })
-    async getFooterSettings(): Promise<FooterSettingsResponseDto> {
-        return this.siteSettingsService.getFooterSettings();
+    @Get("site-settings")
+    @ApiOperation({ summary: "Get all site settings (logo, title, social links, etc.)" })
+    @ApiResponse({ status: 200, type: PublicSettingsResponseDto })
+    async getSiteSettings(): Promise<PublicSettingsResponseDto> {
+        return this.siteSettingsService.getPublicSettings();
     }
 }

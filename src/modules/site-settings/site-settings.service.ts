@@ -1,6 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { BrandSettingsResponseDto, FooterSettingsResponseDto, SiteSettingResponseDto } from "./dto";
+import {
+    BrandSettingsResponseDto,
+    PublicSettingsResponseDto,
+    SiteSettingResponseDto,
+    SocialLinkDto,
+} from "./dto";
 import { UpdateSiteSettingDto } from "./dto/update-site-setting.dto";
 
 // Setting keys constants
@@ -57,38 +62,21 @@ export class SiteSettingsService {
         return result;
     }
 
-    async getFooterSettings(): Promise<FooterSettingsResponseDto> {
-        const [socialLinksSettings, contactEmailSettings] = await Promise.all([
-            this.prisma.siteSetting.findUnique({
-                where: { key: SITE_SETTING_KEYS.FOOTER_SOCIAL_LINKS },
-            }),
-            this.prisma.siteSetting.findUnique({
-                where: { key: SITE_SETTING_KEYS.FOOTER_CONTACT_EMAIL },
-            }),
-        ]);
+    async getSocialLinks(): Promise<SocialLinkDto[]> {
+        const socialLinksSettings = await this.prisma.siteSetting.findUnique({
+            where: { key: SITE_SETTING_KEYS.FOOTER_SOCIAL_LINKS },
+        });
 
-        // Default values if settings don't exist
         const socialLinks = (socialLinksSettings?.value as { links?: unknown[] })?.links || [];
-        const contactEmail = (contactEmailSettings?.value as { email?: string })?.email || "";
-
-        return {
-            socialLinks: socialLinks as FooterSettingsResponseDto["socialLinks"],
-            contactEmail,
-        };
+        return socialLinks as SocialLinkDto[];
     }
 
     async getBrandSettings(): Promise<BrandSettingsResponseDto> {
-        const [brandSettings, contactEmailSettings] = await Promise.all([
-            this.prisma.siteSetting.findUnique({
-                where: { key: SITE_SETTING_KEYS.BRAND_SETTINGS },
-            }),
-            this.prisma.siteSetting.findUnique({
-                where: { key: SITE_SETTING_KEYS.FOOTER_CONTACT_EMAIL },
-            }),
-        ]);
+        const brandSettings = await this.prisma.siteSetting.findUnique({
+            where: { key: SITE_SETTING_KEYS.BRAND_SETTINGS },
+        });
 
         const value = brandSettings?.value as BrandSettingsResponseDto | undefined;
-        const contactEmail = (contactEmailSettings?.value as { email?: string })?.email || "";
 
         return {
             logo: value?.logo || "",
@@ -97,7 +85,16 @@ export class SiteSettingsService {
             shortIntroEn: value?.shortIntroEn || "",
             fullIntroVi: value?.fullIntroVi || "",
             fullIntroEn: value?.fullIntroEn || "",
-            contactEmail: value?.contactEmail || contactEmail,
+            contactEmail: value?.contactEmail || "",
         };
+    }
+
+    async getPublicSettings(): Promise<PublicSettingsResponseDto> {
+        const [brand, socials] = await Promise.all([
+            this.getBrandSettings(),
+            this.getSocialLinks(),
+        ]);
+
+        return { brand, socials };
     }
 }
