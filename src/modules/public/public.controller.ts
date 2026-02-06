@@ -2,7 +2,9 @@ import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Public } from "../../common/decorators";
 import { PaginatedResponseDto } from "../../common/dto";
+import { SiteSettingsService } from "../site-settings/site-settings.service";
 import {
+    FooterSettingsResponseDto,
     PublicCategoryResponseDto,
     PublicPaginationQueryDto,
     PublicPostQueryDto,
@@ -15,7 +17,10 @@ import { PublicService } from "./public.service";
 @Controller("public")
 @Public()
 export class PublicController {
-    constructor(private readonly publicService: PublicService) {}
+    constructor(
+        private readonly publicService: PublicService,
+        private readonly siteSettingsService: SiteSettingsService
+    ) {}
 
     // ==================== CATEGORIES ====================
 
@@ -103,5 +108,14 @@ export class PublicController {
         @Query() query: PublicPaginationQueryDto
     ): Promise<PaginatedResponseDto<PublicPostResponseDto>> {
         return this.publicService.getPostsByTagSlug(slug, query);
+    }
+
+    // ==================== SITE SETTINGS ====================
+
+    @Get("site-settings/footer")
+    @ApiOperation({ summary: "Get footer configuration (social links, contact email)" })
+    @ApiResponse({ status: 200, type: FooterSettingsResponseDto })
+    async getFooterSettings(): Promise<FooterSettingsResponseDto> {
+        return this.siteSettingsService.getFooterSettings();
     }
 }

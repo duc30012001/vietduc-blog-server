@@ -10,6 +10,7 @@ import configuration from "./config/configuration";
 import { CategoriesModule } from "./modules/categories/categories.module";
 import { PostsModule } from "./modules/posts/posts.module";
 import { PublicModule } from "./modules/public/public.module";
+import { SiteSettingsModule } from "./modules/site-settings/site-settings.module";
 import { TagsModule } from "./modules/tags/tags.module";
 import { UsersModule } from "./modules/users/users.module";
 import { PrismaModule } from "./prisma/prisma.module";
@@ -30,6 +31,7 @@ import { PrismaModule } from "./prisma/prisma.module";
         PostsModule,
         TagsModule,
         PublicModule,
+        SiteSettingsModule,
     ],
     controllers: [AppController],
     providers: [

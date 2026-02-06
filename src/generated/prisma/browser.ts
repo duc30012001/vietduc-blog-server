@@ -52,3 +52,8 @@ export type PostTag = Prisma.PostTagModel
  * 
  */
 export type Comment = Prisma.CommentModel
+/**
+ * Model SiteSetting
+ * 
+ */
+export type SiteSetting = Prisma.SiteSettingModel
