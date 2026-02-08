@@ -8,6 +8,8 @@ import {
     PublicPostQueryDto,
     PublicPostResponseDto,
     PublicTagResponseDto,
+    SitemapItemDto,
+    SitemapResponseDto,
 } from "./dto";
 
 @Injectable()
@@ -390,5 +392,41 @@ export class PublicService {
         }
 
         return new PublicTagResponseDto(tag);
+    }
+
+    // ==================== SITEMAP ====================
+
+    async getSitemapData(): Promise<SitemapResponseDto> {
+        const [posts, categories, tags] = await Promise.all([
+            // Get all published posts
+            this.prisma.post.findMany({
+                where: { status: PostStatus.PUBLISHED },
+                orderBy: { published_at: "desc" },
+                take: 10000,
+                select: { slug: true, updated_at: true, published_at: true },
+            }),
+            // Get all categories
+            this.prisma.category.findMany({
+                select: { slug: true, updated_at: true },
+            }),
+            // Get all tags
+            this.prisma.tag.findMany({
+                select: { slug: true, updated_at: true },
+            }),
+        ]);
+
+        return new SitemapResponseDto({
+            posts: posts.map(
+                (p) =>
+                    new SitemapItemDto({
+                        slug: p.slug,
+                        updated_at: p.published_at || p.updated_at,
+                    })
+            ),
+            categories: categories.map(
+                (c) => new SitemapItemDto({ slug: c.slug, updated_at: c.updated_at })
+            ),
+            tags: tags.map((t) => new SitemapItemDto({ slug: t.slug, updated_at: t.updated_at })),
+        });
     }
 }

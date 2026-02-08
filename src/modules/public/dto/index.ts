@@ -4,3 +4,4 @@ export * from "./public-pagination-query.dto";
 export * from "./public-post-query.dto";
 export * from "./public-post-response.dto";
 export * from "./public-tag-response.dto";
+export * from "./sitemap-response.dto";

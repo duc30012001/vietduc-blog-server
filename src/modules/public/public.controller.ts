@@ -10,6 +10,7 @@ import {
     PublicPostResponseDto,
     PublicSettingsResponseDto,
     PublicTagResponseDto,
+    SitemapResponseDto,
 } from "./dto";
 import { PublicService } from "./public.service";
 
@@ -117,5 +118,14 @@ export class PublicController {
     @ApiResponse({ status: 200, type: PublicSettingsResponseDto })
     async getSiteSettings(): Promise<PublicSettingsResponseDto> {
         return this.siteSettingsService.getPublicSettings();
+    }
+
+    // ==================== SITEMAP ====================
+
+    @Get("sitemap-data")
+    @ApiOperation({ summary: "Get all slugs for sitemap generation" })
+    @ApiResponse({ status: 200, type: SitemapResponseDto })
+    async getSitemapData(): Promise<SitemapResponseDto> {
+        return this.publicService.getSitemapData();
     }
 }

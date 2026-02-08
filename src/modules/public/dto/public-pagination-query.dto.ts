@@ -20,6 +20,6 @@ export class PublicPaginationQueryDto {
     @Type(() => Number)
     @IsInt()
     @Min(1)
-    @Max(50)
+    @Max(1000)
     limit?: number = 10;
 }
