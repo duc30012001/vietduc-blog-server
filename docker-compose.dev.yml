@@ -1,10 +1,10 @@
 services:
     app:
-        image: duck-blog-server/dev:${TAG:-latest}
+        image: vietduc-blog-server/dev:${TAG:-latest}
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: duck-blog-server-dev
+        container_name: vietduc-blog-server-dev
         ports:
             - "${PORT:-8080}:${PORT:-8080}"
         environment:
